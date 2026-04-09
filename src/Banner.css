@@ -80,13 +80,16 @@
 .cmp-logo {
   display: flex;
   align-items: center;
-  max-width: 50%; /* Empêche le conteneur du logo de prendre toute la place */
+  flex: 1; /* Permet au conteneur de prendre l'espace disponible à gauche */
+  min-width: 100px; /* BOUCLIER 1 : Interdit au conteneur de faire moins de 100px de large */
 }
 
 .cmp-logo img {
-  max-height: 45px; /* Ajustez cette valeur si le logo est trop gros ou trop petit */
+  height: 45px; /* BOUCLIER 2 : On utilise 'height' fixe plutôt que 'max-height' pour forcer son existence */
   width: auto;
+  max-width: 100%; /* S'assure que le logo ne dépasse pas de son conteneur */
   object-fit: contain;
+  object-position: left; /* Plaque bien le logo sur la gauche */
 }
 
 .cmp-link-dismiss {
