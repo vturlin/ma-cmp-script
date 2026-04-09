@@ -69,9 +69,6 @@ const Cookies = {
     expires.setDate(expires.getDate() + 365);
     // On utilise la variable dynamique DOMAIN ici
     document.cookie = `consent_mode=${consent};expires=${expires.toUTCString()};domain=.${DOMAIN};path=/`;
-  }
-};
-    
     // Cookie Record ID
     const id = Date.now() + '.' + Math.random().toString(36).substr(2, 3);
     document.cookie = `consent_record=${id};expires=${expires.toUTCString()};domain=.${BANNER_DOMAIN};path=/`;
