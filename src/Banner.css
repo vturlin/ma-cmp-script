@@ -1,205 +1,289 @@
-.cmpbanner{
-  position:fixed;
-  z-index:99999;
-  top:0;
-  right:0;
-  bottom:0;
-  left:0;
-  display:block;
-  font-family: roboto;
-  font-size: 0.9rem;
-  font-weight:normal;
-  font-style: normal;
-  justify-content:normal;
-  color: black;
-  background-color:transparent;
-  border: none;
-  border-radius: none;
-  margin: none;
-  padding: none;
-  box-sizing: border-box;
-  text-align: initial;
-  text-decoration: initial;
-  line-height: 20px;
-}
-.cmpmask{
-background:#0000008c;
-position:fixed;
-top:0;
-right:0;
-bottom:0;
-left:0;
-}
-.cmpcontainerauto {
-  position:fixed;
-  background:white;
-  top:50%;
-  transform:translate(0, -50%);
-  height:auto;
-  max-height: 95%;
-  max-width:850px;
-  left:0;
-  right:0;
-  margin:auto;
-  overflow-x:hidden;
-  border-width:5px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border:1.5px;
-  border-style:solid;
-  border-radius:4px;
-  border-color:black;
-}
-.cmpwrapper1 {
-  display:grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-gap:20px;
-  grid-auto-rows:minmax(20px,auto);
-  align-items:center;
-  margin-bottom:2%;
-}
-.cmpwrapper2 {
-  display:grid;
-  grid-template-columns: 1fr 1 fr;
-  grid-gap:20px;
-  grid-auto-rows:minmax(20px,auto);
-  align-items:center;
-  margin-bottom:2%;
-  justify-content: space-between;
-}
-.cmptitle{
-  text-align:left;
-  border:0;
-  font-family:roboto;
-  font-size:1.1rem;
-  align-self: center;
-  justify-self: center;
-}
-.cmpdescription{
-  text-align:justify;
-  text-justify:auto;
-  font-family:roboto;
-  font-size:0.9rem;
-  line-height:2rem;
-}
-.cmpwrapper{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  grid-gap:30px;
-  grid-auto-rows:minmax(30px,auto);
+/* ==========================================================================
+   1. OVERLAY ET CONTENEUR PRINCIPAL
+   ========================================================================== */
+
+/* L'arrière-plan semi-transparent qui bloque la page */
+.cmp-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 2147483647; /* Z-index maximum pour passer par-dessus tout */
+  display: flex;
   align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
 }
-.cmpdescription_center{
-  margin-bottom:10px;
-  font-family:roboto;
-  font-size:0.85rem;
-  text-align:justify;
+
+/* On s'assure que le border-box s'applique à tous les enfants */
+.cmp-modal-overlay * {
+  box-sizing: border-box;
 }
-.cmpcategory_1{
-  position:relative;
-  background:rgba(198,206,0,0.12);
-  border-radius:4px;
-  margin-top:20px;
-  padding:1%;
-  border: 1.5px;
-  border-style: solid;
-  border-color: rgba(198,206,0);
+
+/* La boîte blanche centrale */
+.cmp-modal-container {
+  background-color: #ffffff;
+  width: 90%;
+  max-width: 950px;
+  max-height: 90vh;
+  border-radius: 12px;
+  overflow: hidden; /* Coupe ce qui dépasse des angles arrondis */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
 }
-.cmpcategory_2{
-  position:relative;
-  background:rgba(192,192,192,0.3799999952316284);
-  border-radius:4px;
-  margin-top:20px;
-  padding:1%;
-  border: 1.5px;
-  border-style: solid;
-  border-color: rgba(192,192,192);
+
+/* ==========================================================================
+   2. VUE : BANNIÈRE PRINCIPALE (Inspiration Club Med)
+   ========================================================================== */
+
+.cmp-view-banner {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  max-height: 90vh;
 }
-.cmpcat_title{
-  font-family:roboto;
-  font-size:0.cmp85rem;
-  font-weight:bold;
+
+/* La colonne de gauche avec l'image */
+.cmp-image-column {
+  width: 45%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* L'URL de l'image est injectée directement par React */
 }
-.cmpcat_description{
-  font-family:roboto;
-  font-size:0.85rem;
+
+/* La colonne de droite avec le texte */
+.cmp-text-column {
+  width: 55%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
-.cmpbutton1{
-  position:relative;
-  width:33%;
-  left:33%;
-  font-size:0.9rem;
-  font-family:roboto;
-  text-align:center;
-  color:white;
-  background-color:black;
-  padding:1%;
-  border:none;
-  margin-top:15px;
+
+/* Barre d'en-tête (Logo + Continuer sans accepter) */
+.cmp-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.cmp-logo img {
+  max-height: 35px;
+  max-width: 180px;
+  object-fit: contain;
+}
+
+.cmp-link-dismiss {
+  background: transparent;
+  border: none;
+  color: #333333;
+  font-size: 14px;
+  text-decoration: underline;
   cursor: pointer;
+  padding: 0;
+  font-weight: 500;
+  transition: opacity 0.2s;
 }
-.cmplogo{
-  grid-column:2/3;
-  grid-row:1;
+
+.cmp-link-dismiss:hover {
+  opacity: 0.7;
 }
-.cmptitleprefcenter{
-  text-align:left;
-  grid-column:1/3;
-  grid-row:1;
-  border:0;
-  font-family:roboto;
-  font-size:1.1rem;
+
+/* Textes principaux */
+.cmp-main-text {
+  flex-grow: 1; /* Pousse le footer vers le bas */
 }
-.cmpbutton2{
-  grid-column:2/2;
-  grid-row:1;
-  border:0;
-  padding:1px;
-  font-size:0.9rem;
-  font-family:roboto;
-  text-align:center;
-  color: white;
-  background-color: black;
+
+.cmp-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 15px 0;
+  line-height: 1.2;
+}
+
+.cmp-intro {
+  font-size: 15px;
+  color: #444444;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.cmp-reason-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.cmp-reason-item p {
+  margin: 0;
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.4;
+}
+
+/* Footer (Boutons Paramétrer & Accepter) */
+.cmp-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eeeeee;
+}
+
+.cmp-link-preferences {
+  background: transparent;
+  border: none;
+  color: #333333;
+  font-size: 14px;
+  text-decoration: underline;
   cursor: pointer;
+  padding: 0;
+  font-weight: 600;
 }
-.cmpfavoritestyled2{
-  grid-column:1/2;
-  grid-row:1;
-  border:0;
-  font-size:0.9rem;
-  text-align:right;
-  color:black;
-  background-color:white;
-  font-family:roboto;
+
+.cmp-button-accept {
+  /* La couleur de fond est injectée par React via --cmp-color */
+  color: #000000; /* Texte en noir pour bien contraster avec le jaune */
+  border-radius: 30px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 0.1s, filter 0.2s;
 }
-.cmpbutton3{
-  background-color:transparent;
-  border:none;
-  grid-column:3/3;
-  grid-row:1;
-  font-family:roboto;
-  font-size:0.9rem;
-  right:0px;
-  align-self: center;
-  justify-self: right;
-  cursor: pointer;
+
+.cmp-button-accept:hover {
+  filter: brightness(0.95);
+  transform: scale(1.02);
 }
-.cmplink{
-  font-family:roboto;
-  color: #c6ce00;
-  font-size:0.9rem
+
+
+/* ==========================================================================
+   3. RESPONSIVE DESIGN (Mobiles et petites tablettes)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .cmp-modal-container {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .cmp-view-banner {
+    flex-direction: column;
+  }
+
+  .cmp-image-column {
+    width: 100%;
+    height: 180px; /* Transforme l'image en bandeau haut sur mobile */
+    flex-shrink: 0;
+  }
+
+  .cmp-text-column {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .cmp-title {
+    font-size: 22px;
+  }
+
+  .cmp-header-bar {
+    margin-bottom: 20px;
+  }
 }
+
+/* ==========================================================================
+   4. VUE : CENTRE DE PRÉFÉRENCES (Vue 2)
+   ========================================================================== */
+
+.cmp-view-preferences {
+  padding: 30px 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.cmp-description_center {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  display: block;
+}
+
+.cmp-category {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+/* Boîte de chaque catégorie */
+.cmpcategory_1, .cmpcategory_2 {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+/* Met en surbrillance la catégorie si elle est cochée */
+.cmpcategory_1 {
+  border-color: var(--cmp-color);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.cmpcat_title {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 5px;
+  color: #222;
+  padding-right: 60px; /* Laisse de la place pour le switch */
+}
+
+.cmpcat_description {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  padding-right: 50px;
+}
+
+
+/* ==========================================================================
+   5. LES INTERRUPTEURS (Toggles)
+   ========================================================================== */
+
+.toggle_validation {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+}
+
 .switch {
   position: relative;
   display: inline-block;
-  width: 40px;
-  height: 25px;
+  width: 44px;
+  height: 24px;
 }
+
 .switch input { 
   opacity: 0;
   width: 0;
   height: 0;
 }
+
 .slider {
   position: absolute;
   cursor: pointer;
@@ -207,47 +291,34 @@ left:0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: darkgrey;
-  -webkit-transition: .4s;
+  background-color: #ccc;
   transition: .4s;
-  height: 25px;
-  width: 40px;
 }
+
 .slider:before {
   position: absolute;
   content: "";
   height: 18px;
   width: 18px;
-  left: 4px;
-  bottom: 4px;
-  background-color: rgba(195,195,195);
-  -webkit-transition: .4s;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
   transition: .4s;
 }
+
+/* Quand l'input est coché, la couleur du switch prend la couleur principale dynamique */
 input:checked + .slider {
-  background-color: #f1f1f1;
+  background-color: var(--cmp-color);
 }
+
 input:checked + .slider:before {
-  -webkit-transform: translateX(15px);
-  -ms-transform: translateX(15px);
-  transform: translateX(15px);
-  background-color: #abb8c3;
+  transform: translateX(20px);
 }
-/* Rounded sliders */
+
 .slider.round {
   border-radius: 34px;
 }
+
 .slider.round:before {
   border-radius: 50%;
-}
-.toggle_validation{
-  position:relative;
-  right: 0;
-  bottom: 0;
-  left: 92%;
-  top: 0;
-}
-.cmpimage{
-  max-width:40px;
-  max-height:40px;
 }
