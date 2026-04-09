@@ -1,7 +1,6 @@
 /* ==========================================================================
    1. OVERLAY ET CONTENEUR PRINCIPAL
    ========================================================================== */
-
 /* L'arrière-plan semi-transparent qui bloque la page */
 .cmp-modal-overlay {
   position: fixed;
