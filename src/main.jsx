@@ -10,7 +10,8 @@ const SITE_NAME = settings.siteName || 'notre site';
 const LOGO_URL = settings.logo || 'https://via.placeholder.com/150x50?text=Logo';
 const BG_IMAGE_URL = settings.bgImage || 'https://via.placeholder.com/600x800?text=Image+de+fond';
 const PRIMARY_COLOR = settings.primaryColor || '#000000';
-const POLICIES_URL = settings.policiesUrl || '/politique-de-confidentialite/';;
+const POLICIES_URL = settings.policiesUrl || '/politique-de-confidentialite/';
+const GCP_FUNCTION_URL = 'https://save-consent-141278816244.europe-west1.run.app';
 
 // --- FONCTIONS UTILITAIRES (GTM & COOKIES) ---
 window.dataLayer = window.dataLayer || [];
@@ -80,6 +81,23 @@ const Cookies = {
     }
   }
 };
+const saveConsentToGCP = async (consentMode, consentRecord) => {
+  if (!GCP_FUNCTION_URL) return;
+  try {
+    await fetch(GCP_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        consentMode,
+        consentRecord,
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+      }),
+    });
+  } catch (err) {
+    console.warn('CMP: échec de l\'enregistrement GCP', err);
+  }
+};
 
 // --- LE COMPOSANT REACT ---
 const CookieBanner = () => {
@@ -111,6 +129,7 @@ const handleAcceptAll = () => {
   const fullConsent = '1,2,3,4';
   Cookies.set(fullConsent);
   GTM.updateConsent(fullConsent);
+  saveConsentToGCP(fullConsent, Cookies.get('consent_record')); // ✅ AJOUTER
   closePanel();
 };
 
@@ -118,6 +137,7 @@ const handleDenyAll = () => {
   const minimalConsent = '1';
   Cookies.set(minimalConsent);
   GTM.updateConsent(minimalConsent);
+  saveConsentToGCP(minimalConsent, Cookies.get('consent_record')); // ✅ AJOUTER
   closePanel();
 };
 
@@ -129,6 +149,7 @@ const handleSavePreferences = () => {
   const customConsent = selectedCats.join(',');
   Cookies.set(customConsent);
   GTM.updateConsent(customConsent);
+  saveConsentToGCP(customConsent, Cookies.get('consent_record')); // ✅ AJOUTER
   closePanel();
 };
 
@@ -282,10 +303,12 @@ const initCMP = () => {
       document.body.appendChild(container);
     }
     const root = createRoot(container);
-    root.render(<CookieBanner />); 
+    root.render(<CookieBanner />);
+    
   } catch (erreur) {
   }
 };
+
 // --- SÉCURITÉ DE LANCEMENT POUR CHROME IOS ---
 // Chrome iOS a parfois des ratés avec document.readyState via GTM
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
