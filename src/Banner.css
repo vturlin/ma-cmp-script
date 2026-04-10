@@ -178,6 +178,10 @@
   filter: brightness(0.95);
   transform: scale(1.02);
 }
+.cmp-site-name {
+  color: var(--cmp-color); /* Récupère la couleur dynamique injectée par React */
+  font-weight: 900;
+}
 
 
 /* ==========================================================================
