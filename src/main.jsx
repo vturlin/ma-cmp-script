@@ -139,7 +139,7 @@ const CookieBanner = () => {
               <div className="cmp-main-text">
                 <h1 className="cmp-title">Tout d'abord bienvenue !</h1>
                 <p className="cmp-intro">
-                  Bienvenue sur {SITE_NAME} ! Voici quelques bonnes raisons de dire « oui » à nos cookies pour une expérience personnalisée :
+                  Bienvenue sur <strong className="cmp-site-name">{SITE_NAME}</strong> ! Voici quelques bonnes raisons de dire « oui » à nos cookies pour une expérience personnalisée :
                 </p>
                 <div className="cmp-reason-list">
                   <div className="cmp-reason-item">
