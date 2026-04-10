@@ -4,8 +4,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    target: 'es2015', /* LA MAGIE POUR LES ANCIENS IPHONES EST ICI */
+    target: 'es2015', /* La magie pour les anciens iPhones */
     rollupOptions: {
+      input: './src/main.jsx', /* <-- AJOUT CRUCIAL : On indique le vrai point de départ */
       output: {
         entryFileNames: `cmp-bundle.js`,
         chunkFileNames: `[name].js`,
