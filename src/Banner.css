@@ -126,6 +126,7 @@
   color: #444444;
   line-height: 1.5;
   margin-bottom: 25px;
+   text-align: justify;
 }
 
 .cmp-reason-list {
@@ -179,7 +180,7 @@
   transform: scale(1.02);
 }
 .cmp-site-name {
-  color: var(--cmp-color); /* Récupère la couleur dynamique injectée par React */
+  color: #555; /* Récupère la couleur dynamique injectée par React */
   font-weight: 900;
 }
 
