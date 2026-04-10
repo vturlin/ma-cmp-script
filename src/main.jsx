@@ -10,7 +10,7 @@ const SITE_NAME = settings.siteName || 'notre site';
 const LOGO_URL = settings.logo || 'https://via.placeholder.com/150x50?text=Logo';
 const BG_IMAGE_URL = settings.bgImage || 'https://via.placeholder.com/600x800?text=Image+de+fond';
 const PRIMARY_COLOR = settings.primaryColor || '#000000';
-const POLICIES_URL = '/politique-de-confidentialite/';
+const POLICIES_URL = settings.policiesUrl || '/politique-de-confidentialite/';;
 
 // --- FONCTIONS UTILITAIRES (GTM & COOKIES) ---
 window.dataLayer = window.dataLayer || [];
@@ -18,59 +18,73 @@ function gtag() { window.dataLayer.push(arguments); }
 
 const GTM = {
   setDefault: () => {
-    gtag('consent', 'default', {
-      'ad_storage': "denied", 'analytics_storage': "denied",
-      'functionality_storage': "denied", 'personalization_storage': "denied",
-      'security_storage': "granted", 'ad_user_data': "denied",
-      'ad_personalization': "denied", 'wait_for_update': 500
-    });
+    try {
+      gtag('consent', 'default', {
+        'ad_storage': "denied", 'analytics_storage': "denied",
+        'functionality_storage': "denied", 'personalization_storage': "denied",
+        'security_storage': "granted", 'ad_user_data': "denied",
+        'ad_personalization': "denied", 'wait_for_update': 500
+      });
+    } catch (e) { console.warn("GTM bloqué par le navigateur"); }
   },
   updateConsent: (consentMode) => {
-    const hasAds = consentMode.includes('4');
-    const hasPerso = consentMode.includes('3');
-    const hasAnalytics = consentMode.includes('2');
+    try {
+      const hasAds = consentMode.includes('4');
+      const hasPerso = consentMode.includes('3');
+      const hasAnalytics = consentMode.includes('2');
 
-    gtag('consent', 'update', {
-      'ad_storage': hasAds ? 'granted' : 'denied',
-      'ad_personalization': hasAds ? 'granted' : 'denied',
-      'ad_user_data': hasAds ? 'granted' : 'denied',
-      'functionality_storage': hasPerso ? "granted" : "denied",
-      'personalization_storage': hasPerso ? "granted" : "denied",
-      'analytics_storage': hasAnalytics ? 'granted' : 'denied',
-      'security_storage': "granted"
-    });
+      gtag('consent', 'update', {
+        'ad_storage': hasAds ? 'granted' : 'denied',
+        'ad_personalization': hasAds ? 'granted' : 'denied',
+        'ad_user_data': hasAds ? 'granted' : 'denied',
+        'functionality_storage': hasPerso ? "granted" : "denied",
+        'personalization_storage': hasPerso ? "granted" : "denied",
+        'analytics_storage': hasAnalytics ? 'granted' : 'denied',
+        'security_storage': "granted"
+      });
 
-    window.dataLayer.push({
-      'event': 'consent_mode_updated',
-      'consent_mode': consentMode
-    });
+      window.dataLayer.push({
+        'event': 'consent_mode_updated',
+        'consent_mode': consentMode
+      });
+    } catch (e) { console.warn("GTM bloqué par le navigateur"); }
   }
 };
 
 const Cookies = {
   get: (cname) => {
-    const name = cname + '=';
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const ca = decodedCookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i].trim();
-      if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
+    try {
+      const name = cname + '=';
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const ca = decodedCookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
+      }
+      return 'absent';
+    } catch (e) {
+      // Si le mode privé bloque la lecture, on fait comme s'il n'y avait pas de cookie
+      return 'absent'; 
     }
-    return 'absent';
   },
   set: (consent) => {
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 365);
-    document.cookie = `consent_mode=${consent};expires=${expires.toUTCString()};domain=.${DOMAIN};path=/`;
-    
-    const id = Date.now() + '.' + Math.random().toString(36).substr(2, 3);
-    document.cookie = `consent_record=${id};expires=${expires.toUTCString()};domain=.${DOMAIN};path=/`;
+    try {
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 365);
+      const rootDomain = DOMAIN.split('.').slice(-2).join('.');
+      document.cookie = `consent_mode=${consent};expires=${expires.toUTCString()};domain=.${rootDomain};path=/`;
+      const id = Date.now() + '.' + Math.random().toString(36).substr(2, 3);
+      document.cookie = `consent_record=${id};expires=${expires.toUTCString()};domain=.${rootDomain};path=/`;
+    } catch (e) {
+      console.warn("Écriture des cookies bloquée en mode privé");
+    }
   }
 };
 
 // --- LE COMPOSANT REACT ---
 const CookieBanner = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [view, setView] = useState('banner');
   const [toggles, setToggles] = useState({ 2: false, 3: false, 4: false });
 
@@ -80,43 +94,60 @@ const CookieBanner = () => {
     const consentRecord = Cookies.get('consent_record');
 
     if (consentMode === 'absent' || consentMode === 'empty' || consentRecord === 'absent') {
+      alert("La bannière a décidé de s'afficher (Pas de cookies) !");
       setIsVisible(true);
     } else {
-      GTM.updateConsent(consentMode);
-    }
+  GTM.updateConsent(consentMode);
+  setIsClosed(true);
+}
   }, []);
 
-  const handleAcceptAll = () => {
-    const fullConsent = '1,2,3,4';
-    Cookies.set(fullConsent);
-    GTM.updateConsent(fullConsent);
-    setIsVisible(false);
-  };
+  const closePanel = () => {
+  setIsVisible(false);
+  setIsClosed(true);
+  setView('banner');
+};
 
-  const handleDenyAll = () => {
-    const minimalConsent = '1';
-    Cookies.set(minimalConsent);
-    GTM.updateConsent(minimalConsent);
-    setIsVisible(false);
-  };
+const handleAcceptAll = () => {
+  const fullConsent = '1,2,3,4';
+  Cookies.set(fullConsent);
+  GTM.updateConsent(fullConsent);
+  closePanel();
+};
 
-  const handleSavePreferences = () => {
-    const selectedCats = ['1'];
-    if (toggles[2]) selectedCats.push('2');
-    if (toggles[3]) selectedCats.push('3');
-    if (toggles[4]) selectedCats.push('4');
-    
-    const customConsent = selectedCats.join(',');
-    Cookies.set(customConsent);
-    GTM.updateConsent(customConsent);
-    setIsVisible(false);
-  };
+const handleDenyAll = () => {
+  const minimalConsent = '1';
+  Cookies.set(minimalConsent);
+  GTM.updateConsent(minimalConsent);
+  closePanel();
+};
 
-  const handleToggle = (id) => {
-    setToggles(prev => ({ ...prev, [id]: !prev[id] }));
-  };
+const handleSavePreferences = () => {
+  const selectedCats = ['1'];
+  if (toggles[2]) selectedCats.push('2');
+  if (toggles[3]) selectedCats.push('3');
+  if (toggles[4]) selectedCats.push('4');
+  const customConsent = selectedCats.join(',');
+  Cookies.set(customConsent);
+  GTM.updateConsent(customConsent);
+  closePanel();
+};
 
-  if (!isVisible) return null;
+const handleToggle = (id) => {
+  setToggles(prev => ({ ...prev, [id]: !prev[id] }));
+};
+
+const handleReopen = () => {
+  setView('preferences');
+  setIsVisible(true);
+  setIsClosed(false);
+};
+
+if (!isVisible) return (
+  isClosed
+    ? <button className="cmp-reopen-btn" onClick={handleReopen} title="Gérer mes cookies">🍪</button>
+    : null
+);
 
   return (
     <div className="cmp-modal-overlay" style={{ '--cmp-color': PRIMARY_COLOR }}>
@@ -148,6 +179,10 @@ const CookieBanner = () => {
                   <div className="cmp-reason-item">
                     <p><strong>Gain de temps :</strong> Inutile de retaper vos informations à chaque visite.</p>
                   </div>
+                  <p className="cmp-policy-link">
+                    Pour en savoir plus, consultez notre{' '}
+                    <a href={POLICIES_URL} target="_blank" rel="noopener noreferrer">politique de confidentialité</a>.
+                  </p>
                 </div>
               </div>
 
@@ -222,7 +257,10 @@ const CookieBanner = () => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eeeeee' }}>
+              <button className="cmp-link-preferences" onClick={handleDenyAll}>
+                Tout refuser
+              </button>
               <button className="cmp-button-accept" onClick={handleSavePreferences} style={{ backgroundColor: 'var(--cmp-color)', borderColor: 'var(--cmp-color)' }}>
                 SAUVEGARDER MA SÉLECTION
               </button>
@@ -235,20 +273,28 @@ const CookieBanner = () => {
   );
 };
 
-// --- INITIALISATION DU WIDGET ---
+// --- INITIALISATION DU WIDGET (Version Ultra-Robuste) ---
 const initCMP = () => {
-  let container = document.getElementById('mon-cmp-root');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'mon-cmp-root';
-    document.body.appendChild(container);
+  try {
+    let container = document.getElementById('mon-cmp-root');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'mon-cmp-root';
+      document.body.appendChild(container);
+    }
+    const root = createRoot(container);
+    root.render(<CookieBanner />); 
+  } catch (erreur) {
   }
-  const root = createRoot(container);
-  root.render(<CookieBanner />);
 };
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initCMP);
-} else {
+// --- SÉCURITÉ DE LANCEMENT POUR CHROME IOS ---
+// Chrome iOS a parfois des ratés avec document.readyState via GTM
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  // La page est déjà chargée, on lance tout de suite
   initCMP();
+} else {
+  // La page charge encore, on attend
+  document.addEventListener('DOMContentLoaded', initCMP);
+  // Filet de sécurité supplémentaire au cas où DOMContentLoaded rate
+  window.addEventListener('load', initCMP); 
 }
