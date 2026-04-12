@@ -2,21 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import './Banner.css';
 
-
-// --- FONCTIONS UTILITAIRES (GTM & COOKIES) ---
-window.dataLayer = window.dataLayer || [];
-function gtag() { window.dataLayer.push(arguments); }
-gtag('consent', 'default', {
-  'ad_storage': 'denied',
-  'analytics_storage': 'denied',
-  'functionality_storage': 'denied',
-  'personalization_storage': 'denied',
-  'security_storage': 'granted',
-  'ad_user_data': 'denied',
-  'ad_personalization': 'denied',
-  'wait_for_update': 500
-});
-
 // --- RECUPERATION DYNAMIQUE DES VARIABLES ---
 const settings = window.cmpSettings || {};
 
