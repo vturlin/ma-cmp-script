@@ -7,15 +7,26 @@ export default defineConfig({
     react(),
     cssInjectedByJsPlugin()
   ],
+  resolve: {
+  alias: {
+    'react/jsx-runtime': 'preact/compat/jsx-runtime', // ✅ AJOUTER
+    'react': 'preact/compat',
+    'react-dom': 'preact/compat',
+  }
+},
   build: {
-    lib: {
-      entry: 'src/main.jsx',
-      name: 'CookieBannerWidget',
-      fileName: () => 'welcome-widget.js',
-      formats: ['iife']
-    },
-    minify: 'esbuild', // ✅ déjà actif par défaut, mais explicite c'est mieux
-    reportCompressedSize: true, // ✅ affiche la taille compressée dans les logs de build
+    target: 'es2015',
+    minify: 'esbuild',
+    reportCompressedSize: true,
+    rollupOptions: {
+      input: './src/main.jsx',
+      output: {
+        entryFileNames: `welcome-widget.js`,
+        chunkFileNames: `[name].js`,
+        assetFileNames: `[name].[ext]`,
+        format: 'iife'
+      }
+    }
   },
   define: { 'process.env.NODE_ENV': '"production"' }
 })
