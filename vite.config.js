@@ -9,7 +9,7 @@ export default defineConfig({
   ],
   resolve: {
   alias: {
-    'react/jsx-runtime': 'preact/compat/jsx-runtime', // ✅ AJOUTER
+    'react/jsx-runtime': 'preact/jsx-runtime', // ✅ sans "compat/"
     'react': 'preact/compat',
     'react-dom': 'preact/compat',
   }
