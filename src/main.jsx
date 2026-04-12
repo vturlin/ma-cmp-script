@@ -194,7 +194,7 @@ if (!isVisible) return (
             {/* BOUTON REFUS SOUS LA POLITIQUE */}
             <div className="cmp-dismiss-wrapper">
               <button onClick={handleDenyAll} className="cmp-link-dismiss">
-                Continuer sans accepter;
+                Continuer sans accepter
               </button>
             </div>
           </div>
