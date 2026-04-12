@@ -1,18 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    cssInjectedByJsPlugin()
+  ],
   build: {
-    target: 'es2015', /* La magie pour les anciens iPhones */
-    rollupOptions: {
-      input: './src/main.jsx', /* <-- AJOUT CRUCIAL : On indique le vrai point de départ */
-      output: {
-        entryFileNames: `welcome-widget.js`,
-        chunkFileNames: `[name].js`,
-        assetFileNames: `[name].[ext]`,
-        format: 'iife' 
-      }
-    }
-  }
+    lib: {
+      entry: 'src/main.jsx',
+      name: 'CookieBannerWidget',
+      fileName: () => 'welcome-widget.js',
+      formats: ['iife']
+    },
+    minify: 'esbuild', // ✅ déjà actif par défaut, mais explicite c'est mieux
+    reportCompressedSize: true, // ✅ affiche la taille compressée dans les logs de build
+  },
+  define: { 'process.env.NODE_ENV': '"production"' }
 })
